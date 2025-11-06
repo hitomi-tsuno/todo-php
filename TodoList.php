@@ -20,7 +20,7 @@ if (!isset($_SESSION['todos'])) {
 // Todoの追加
 if (isset($_POST['add']) && !empty($_POST['text'])) {
     $todo = [
-        'id' => time(),
+        'id' => round(microtime(true) * 1000),
         'text' => $_POST['text'],
         "isdone" => false,
     ];
@@ -53,6 +53,13 @@ elseif (isset($_POST['isdone_id'])) {
 
 <head>
     <title>Todoリスト</title>
+    <!-- CSSで .done クラスに打ち消し線を追加 -->
+    <style>
+        .done {
+            text-decoration: line-through;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -76,7 +83,9 @@ elseif (isset($_POST['isdone_id'])) {
                         <?php if ($todo['isdone']) echo 'checked'; ?>>
                 </form>
                 <!-- ＜TODO内容＞ -->
-                <?php echo htmlspecialchars($todo['text']); ?>
+                <span class="<?= $todo['isdone'] ? 'done' : '' ?>">
+                    <?= htmlspecialchars($todo['text']) ?>
+                </span>
                 <!-- ＜登録日＞ -->
                 <?php echo htmlspecialchars($todo['id']); ?>
                 <!-- ＜削除＞ボタン -->
