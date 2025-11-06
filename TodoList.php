@@ -1,6 +1,6 @@
 <!-- TodoList.php -->
 <?php
-// phpinfo();  // XDebugの動作確認用 →有効でした
+$file_path = 'todos.json';
 
 session_start(); // セッション開始
 
@@ -10,21 +10,32 @@ session_start(); // セッション開始
 
 // 初期化（初回のみ）
 if (!isset($_SESSION['todos'])) {
-    $_SESSION['todos'] = [
-        ["id" => 1, "text" => "牛乳を買う", "isdone" => false],
-        ["id" => 2, "text" => "メール返信", "isdone" => false],
-        ["id" => 3, "text" => "Reactの復習", "isdone" => false]
-    ];
+    if (file_exists($file_path)) {
+        // JSONファイルから読み込み
+        $json = file_get_contents($file_path);
+        $_SESSION['todos'] = json_decode($json, true);
+    } else {
+        // 初期データ
+        $_SESSION['todos'] = [
+            ["id" => 1, "text" => "牛乳を買う", "isdone" => false],
+            ["id" => 2, "text" => "メール返信", "isdone" => false],
+            ["id" => 3, "text" => "Reactの復習", "isdone" => false]
+        ];
+        // todos.jsonに保存
+        file_put_contents($file_path, json_encode($_SESSION['todos'], JSON_PRETTY_PRINT));
+    }
 }
 
 // Todoの追加
 if (isset($_POST['add']) && !empty($_POST['text'])) {
     $todo = [
-        'id' => round(microtime(true) * 1000),
+        'id' => (int)round(microtime(true) * 1000),
         'text' => $_POST['text'],
         "isdone" => false,
     ];
     array_push($_SESSION['todos'], $todo);
+    // todos.jsonに保存
+    file_put_contents($file_path, json_encode($_SESSION['todos'], JSON_PRETTY_PRINT));
 }
 
 // Todoの削除
@@ -33,6 +44,11 @@ if (isset($_POST['delete'])) {
     $_SESSION['todos'] = array_filter($_SESSION['todos'], function ($todo) use ($deleteId) {
         return $todo['id'] !== $deleteId;
     });
+
+    // todos.jsonに保存
+    file_put_contents($file_path, json_encode($_SESSION['todos'], JSON_PRETTY_PRINT));
+
+    // var_dump($deleteId, $_SESSION['todos']);
 }
 
 // Todoの完了・未完了切り替え
@@ -45,6 +61,8 @@ elseif (isset($_POST['isdone_id'])) {
         }
     }
     unset($todo); // 参照の解放
+    // todos.jsonに保存
+    file_put_contents($file_path, json_encode($_SESSION['todos'], JSON_PRETTY_PRINT));
 }
 
 ?>
