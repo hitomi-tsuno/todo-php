@@ -4,12 +4,16 @@
 
 session_start(); // セッション開始
 
+// // セッションを破棄する　（動作確認用）
+// $_SESSION = array();
+// session_destroy();
+
 // 初期化（初回のみ）
 if (!isset($_SESSION['todos'])) {
     $_SESSION['todos'] = [
-        ["id" => time(), "text" => "牛乳を買う"],
-        ["id" => time(), "text" => "メール返信"],
-        ["id" => time(), "text" => "Reactの復習"]
+        ["id" => 1, "text" => "牛乳を買う", "isdone" => false],
+        ["id" => 2, "text" => "メール返信", "isdone" => false],
+        ["id" => 3, "text" => "Reactの復習", "isdone" => false]
     ];
 }
 
@@ -18,22 +22,29 @@ if (isset($_POST['add']) && !empty($_POST['text'])) {
     $todo = [
         'id' => time(),
         'text' => $_POST['text'],
+        "isdone" => false,
     ];
     array_push($_SESSION['todos'], $todo);
 }
 
 // Todoの削除
 if (isset($_POST['delete'])) {
-    // var_dump($_SESSION['todos']);   //27行目
-    // var_dump($_POST['delete_id']);  //28行目
-
     $deleteId = (int)$_POST['delete_id'];
-    $_SESSION['todos'] = array_filter($_SESSION['todos'], fn($todo) => $todo['id'] !== $deleteId);
-    // ↓ デバッグ用（動作確認済みのためコメントアウト）
-    // $_SESSION['todos'] = array_filter($_SESSION['todos'], function ($todo) use ($deleteId) {
-    //     var_dump($todo); // 32行目
-    //     return $todo['id'] !== $deleteId;
-    // });
+    $_SESSION['todos'] = array_filter($_SESSION['todos'], function ($todo) use ($deleteId) {
+        return $todo['id'] !== $deleteId;
+    });
+}
+
+// Todoの完了・未完了切り替え
+elseif (isset($_POST['isdone_id'])) {
+    $isdoneId = (int)$_POST['isdone_id'];
+    foreach ($_SESSION['todos'] as &$todo) {
+        if ($todo['id'] === $isdoneId) {
+            $todo['isdone'] = !$todo['isdone'];
+            break;
+        }
+    }
+    unset($todo); // 参照の解放
 }
 
 ?>
@@ -57,12 +68,19 @@ if (isset($_POST['delete'])) {
     <ul>
         <?php foreach ($_SESSION['todos'] as $todo): ?>
             <li>
+                <!-- ✅ ＜完了＞チェックボックス -->
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="isdone_id" value="<?php echo $todo['id']; ?>">
+                    <input type="checkbox" name="isdone"
+                        onchange="this.form.submit()"
+                        <?php if ($todo['isdone']) echo 'checked'; ?>>
+                </form>
                 <!-- ＜TODO内容＞ -->
                 <?php echo htmlspecialchars($todo['text']); ?>
                 <!-- ＜登録日＞ -->
                 <?php echo htmlspecialchars($todo['id']); ?>
                 <!-- ＜削除＞ボタン -->
-                <form method="POST">
+                <form method="POST" style="display:inline;">
                     <input type="hidden" name="delete_id" value="<?php echo $todo['id']; ?>">
                     <button type="submit" name="delete">削除</button>
                 </form>
