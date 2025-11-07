@@ -1,0 +1,28 @@
+/* style.css */
+
+/* .done クラスに打ち消し線を追加 */
+.done {
+  text-decoration: line-through;
+}
+
+/* StyledTableHeader クラスのスタイル */
+th {
+  border-bottom: 2px solid #ccc;
+  background-color: #f5f5f5;
+  padding: 8px;
+  text-align: left;
+}
+
+/* ボタンのスタイル */
+button {
+  margin: 5px;
+  padding: 8px 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+
+  &:hover {
+    background: #0056b3;
+  }
+}

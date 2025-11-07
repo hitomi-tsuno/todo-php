@@ -38,14 +38,8 @@ $todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSO
 <html>
 
 <head>
+    <link rel="stylesheet" href="style.css">';
     <title>Todoリスト</title>
-    <!-- CSSで .done クラスに打ち消し線を追加 -->
-    <style>
-        .done {
-            text-decoration: line-through;
-        }
-    </style>
-
 </head>
 
 <body>
@@ -58,30 +52,48 @@ $todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSO
         <button type="submit" name="add">追加</button>
     </form>
 
-    <ul>
-        <?php foreach ($todos as $todo): ?>
-            <li>
-                <!-- ✅ ＜完了＞チェックボックス -->
-                <form method="POST" style="display:inline;">
-                    <input type="hidden" name="isdone_id" value="<?php echo $todo['id']; ?>">
-                    <input type="checkbox" name="isdone"
-                        onchange="this.form.submit()"
-                        <?php if ($todo['isdone']) echo 'checked'; ?>>
-                </form>
-                <!-- ＜TODO内容＞ -->
-                <span class="<?= $todo['isdone'] ? 'done' : '' ?>">
-                    <?= htmlspecialchars($todo['text']) ?>
-                </span>
-                <!-- ＜登録日＞ -->
-                <?php echo htmlspecialchars($todo['id']); ?>
-                <!-- ＜削除＞ボタン -->
-                <form method="POST" style="display:inline;">
-                    <input type="hidden" name="delete_id" value="<?php echo $todo['id']; ?>">
-                    <button type="submit" name="delete">削除</button>
-                </form>
-            </li>
+    <table>
+        <thead>
+            <tr>
+                <th>完了</th>
+                <th>内容</th>
+                <th>登録日時</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <?php foreach ($todos as $todo): ?>
+                    <td>
+                        <!-- ✅ ＜完了＞チェックボックス -->
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="isdone_id" value="<?php echo $todo['id']; ?>">
+                            <input type="checkbox" name="isdone"
+                                onchange="this.form.submit()"
+                                <?php if ($todo['isdone']) echo 'checked'; ?>>
+                        </form>
+                    </td>
+                    <td>
+
+                        <!-- ＜TODO内容＞ -->
+                        <span class="<?= $todo['isdone'] ? 'done' : '' ?>">
+                            <?= htmlspecialchars($todo['text']) ?>
+                        </span>
+                    </td>
+                    <td>
+                        <!-- ＜登録日＞ -->
+                        <?php echo htmlspecialchars($todo['id']); ?>
+                    </td>
+                    <td>
+                        <!-- ＜削除＞ボタン -->
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="delete_id" value="<?php echo $todo['id']; ?>">
+                            <button type="submit" name="delete">削除</button>
+                        </form>
+                    </td>
+            </tr>
         <?php endforeach; ?>
-    </ul>
+    </table>
 </body>
 
 </html>
