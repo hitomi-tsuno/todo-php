@@ -50,6 +50,8 @@ React＋TypeScript版と同様の機能を段階的に実装しながら、フ�
 - ✅ 追加・削除ボタンの追加（2025/11/05）
 - ✅ 完了チェックボックスの追加（2025/11/06）
 - ✅ todos.json 対応の追加（2025/11/07)
-- ✅ SQLite へ移行（todos.json→todos.db）
+- ✅ SQLite へ移行（todos.json→todos.db）(2025/11/07)
+- ✅ table タグを使用して、列を整列する（2025/11/08）
+- ✅ style.cssの作成（2025/11/08）
 
 ![代替テキスト](./image.png)
