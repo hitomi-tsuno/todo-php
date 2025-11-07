@@ -47,7 +47,7 @@ $todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSO
 
     <form method="POST">
         <!-- ＜追加＞テキストボックス -->
-        <input type="text" name="text" placeholder="新しいTODOを入力" required>
+        <input type="search" name="text" placeholder="新しいTODOを入力" required>
         <!-- ＜追加＞ボタン -->
         <button type="submit" name="add">追加</button>
     </form>
@@ -62,8 +62,8 @@ $todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSO
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <?php foreach ($todos as $todo): ?>
+            <?php foreach ($todos as $todo): ?>
+                <tr>
                     <td>
                         <!-- ✅ ＜完了＞チェックボックス -->
                         <form method="POST" style="display:inline;">
@@ -82,7 +82,7 @@ $todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSO
                     </td>
                     <td>
                         <!-- ＜登録日＞ -->
-                        <?php echo htmlspecialchars($todo['id']); ?>
+                        <?php echo date('Y-m-d H:i:s', $todo['id'] / 1000); ?>
                     </td>
                     <td>
                         <!-- ＜削除＞ボタン -->
@@ -91,8 +91,8 @@ $todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSO
                             <button type="submit" name="delete">削除</button>
                         </form>
                     </td>
-            </tr>
-        <?php endforeach; ?>
+                </tr>
+            <?php endforeach; ?>
     </table>
 </body>
 
