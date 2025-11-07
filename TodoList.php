@@ -1,69 +1,37 @@
 <!-- TodoList.php -->
 <?php
-$file_path = 'todos.json';
+$db_path = 'todos.db';
 
-session_start(); // セッション開始
-
-// // セッションを破棄する　（動作確認用）
-// $_SESSION = array();
-// session_destroy();
-
-// 初期化（初回のみ）
-if (!isset($_SESSION['todos'])) {
-    if (file_exists($file_path)) {
-        // JSONファイルから読み込み
-        $json = file_get_contents($file_path);
-        $_SESSION['todos'] = json_decode($json, true);
-    } else {
-        // 初期データ
-        $_SESSION['todos'] = [
-            ["id" => 1, "text" => "牛乳を買う", "isdone" => false],
-            ["id" => 2, "text" => "メール返信", "isdone" => false],
-            ["id" => 3, "text" => "Reactの復習", "isdone" => false]
-        ];
-        // todos.jsonに保存
-        file_put_contents($file_path, json_encode($_SESSION['todos'], JSON_PRETTY_PRINT));
-    }
-}
+// DB接続/作成
+$db = new PDO('sqlite:' . $db_path);
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Todoの追加
 if (isset($_POST['add']) && !empty($_POST['text'])) {
-    $todo = [
-        'id' => (int)round(microtime(true) * 1000),
-        'text' => $_POST['text'],
-        "isdone" => false,
-    ];
-    array_push($_SESSION['todos'], $todo);
-    // todos.jsonに保存
-    file_put_contents($file_path, json_encode($_SESSION['todos'], JSON_PRETTY_PRINT));
+    // ＜　INSERT文の実行　＞
+    $stmt = $db->prepare("INSERT INTO todos (id, text, isdone) VALUES (?, ?, 0)");
+    $id = (int)round(microtime(true) * 1000);
+    $stmt->execute([$id, $_POST['text']]);
 }
 
 // Todoの削除
 if (isset($_POST['delete'])) {
+    // ＜　DELETE文の実行　＞
     $deleteId = (int)$_POST['delete_id'];
-    $_SESSION['todos'] = array_filter($_SESSION['todos'], function ($todo) use ($deleteId) {
-        return $todo['id'] !== $deleteId;
-    });
-
-    // todos.jsonに保存
-    file_put_contents($file_path, json_encode($_SESSION['todos'], JSON_PRETTY_PRINT));
-
-    // var_dump($deleteId, $_SESSION['todos']);
+    $stmt = $db->prepare("DELETE FROM todos WHERE id = ?");
+    $stmt->execute([$deleteId]);
 }
 
 // Todoの完了・未完了切り替え
-elseif (isset($_POST['isdone_id'])) {
+if (isset($_POST['isdone_id'])) {
+    // ＜　UPDATE文の実行　＞
     $isdoneId = (int)$_POST['isdone_id'];
-    foreach ($_SESSION['todos'] as &$todo) {
-        if ($todo['id'] === $isdoneId) {
-            $todo['isdone'] = !$todo['isdone'];
-            break;
-        }
-    }
-    unset($todo); // 参照の解放
-    // todos.jsonに保存
-    file_put_contents($file_path, json_encode($_SESSION['todos'], JSON_PRETTY_PRINT));
+    $stmt = $db->prepare("UPDATE todos SET isdone = NOT isdone WHERE id = ?");
+    $stmt->execute([$isdoneId]);
 }
+
+// ＜　SELECT文の実行　＞
+$todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 <!DOCTYPE html>
@@ -91,7 +59,7 @@ elseif (isset($_POST['isdone_id'])) {
     </form>
 
     <ul>
-        <?php foreach ($_SESSION['todos'] as $todo): ?>
+        <?php foreach ($todos as $todo): ?>
             <li>
                 <!-- ✅ ＜完了＞チェックボックス -->
                 <form method="POST" style="display:inline;">
