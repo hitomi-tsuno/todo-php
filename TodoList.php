@@ -38,7 +38,7 @@ $todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSO
 <html>
 
 <head>
-    <link rel="stylesheet" href="style.css">';
+    <link rel="stylesheet" href="style.css">
     <title>Todoリスト</title>
 </head>
 
