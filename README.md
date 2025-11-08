@@ -53,5 +53,6 @@ React＋TypeScript版と同様の機能を段階的に実装しながら、フ�
 - ✅ SQLite へ移行（todos.json→todos.db）(2025/11/07)
 - ✅ table タグを使用して、列を整列する（2025/11/08）
 - ✅ style.cssの作成（2025/11/08）
+- ✅ JavaScriptで非同期処理に変更（api.php,TodoList.jsの追加）（2025/11/08）
 
 ![代替テキスト](./image.png)
