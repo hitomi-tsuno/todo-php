@@ -51,8 +51,9 @@ React＋TypeScript版と同様の機能を段階的に実装しながら、フ�
 - ✅ 完了チェックボックスの追加（2025/11/06）
 - ✅ todos.json 対応の追加（2025/11/07)
 - ✅ SQLite へ移行（todos.json→todos.db）(2025/11/07)
-- ✅ table タグを使用して、列を整列する（2025/11/08）
-- ✅ style.cssの作成（2025/11/08）
-- ✅ JavaScriptで非同期処理に変更（api.php,TodoList.jsの追加）（2025/11/08）
+- ✅ tableタグで列を整列し、視認性と構造を改善（2025/11/08）
+- ✅ style.cssを作成し、スタイルを外部化して保守性アップ（2025/11/08）
+- ✅ api.phpとTodoList.jsを分離し、非同期処理（fetch + async/await）でTodo操作を実装
+
 
 ![代替テキスト](./image.png)
