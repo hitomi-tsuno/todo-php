@@ -26,6 +26,12 @@ switch ($action) {
     echo json_encode(['status' => 'ok']);
     break;
 
+  case 'update':
+    $stmt = $db->prepare("UPDATE todos SET text = ? WHERE id = ?");
+    $stmt->execute([$_POST['text'], $_POST['id']]);
+    echo json_encode(['status' => 'ok']);
+    break;
+
   case 'list':
     $todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($todos);
