@@ -26,6 +26,12 @@ switch ($action) {
     echo json_encode(['status' => 'ok']);
     break;
 
+  case 'toggle_all':
+    $stmt = $db->prepare("UPDATE todos SET isdone = ?");
+    $stmt->execute([$_POST['isdone']]);
+    echo json_encode(['status' => 'ok']);
+    break;
+
   case 'update':
     $stmt = $db->prepare("UPDATE todos SET text = ? WHERE id = ?");
     $stmt->execute([$_POST['text'], $_POST['id']]);

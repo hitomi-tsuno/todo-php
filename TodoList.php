@@ -13,10 +13,11 @@
         <input type="search" name="text" placeholder="新しいTODOを入力" required>
         <button type="submit">追加</button>
     </form>
+
     <table>
         <thead>
             <tr>
-                <th>完了</th>
+                <th>完了<input type="checkbox" id="headerCheckbox"></th>
                 <th>内容</th>
                 <th>登録日時</th>
                 <th>操作</th>
@@ -24,6 +25,7 @@
         </thead>
         <tbody id="todoBody"></tbody>
     </table>
+
     <script src="TodoList.js"></script>
 </body>
 

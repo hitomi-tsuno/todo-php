@@ -9,6 +9,7 @@ async function fetchTodos() {
       body: new URLSearchParams({ action: "list" }),
     });
     const todos = await res.json();
+    updateHeaderCheckbox(todos);
     renderTodos(todos);
   } catch (err) {
     console.error("取得エラー:", err);
@@ -123,5 +124,24 @@ document.getElementById("addForm").addEventListener("submit", (e) => {
   addTodo(text);
   e.target.reset();
 });
+
+// ヘッダーチェックボックスで全件完了/未完了切替
+document.getElementById("headerCheckbox").addEventListener("change", async (e) => {
+  const checked = e.target.checked;
+  await fetch("api.php", {
+    method: "POST",
+    body: new URLSearchParams({ action: "toggle_all", isdone: checked ? 1 : 0 })
+  });
+  fetchTodos();
+});
+// ヘッダーチェックボックスの状態更新
+function updateHeaderCheckbox(todos) {
+  const headerCheckbox = document.getElementById("headerCheckbox");
+  headerCheckbox.checked = areAllTodosDone(todos);
+}
+// 全件完了しているか判定
+function areAllTodosDone(todos) {
+  return todos.every(todo => todo.isdone === 1);
+}
 
 fetchTodos();
