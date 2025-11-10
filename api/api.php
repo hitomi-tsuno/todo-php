@@ -1,5 +1,5 @@
 <?php
-$db_path = 'todos.db';
+$db_path = '../data/todos.db';
 
 // DB接続/作成
 $db = new PDO('sqlite:' . $db_path);

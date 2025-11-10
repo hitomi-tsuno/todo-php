@@ -1,22 +1,25 @@
-// TodoList.js
+// js/TodoList.js
 
 let isEditingId = 0;
 
+// TODOリストの取得と表示
 async function fetchTodos() {
   try {
-    const res = await fetch("api.php", {
+    const res = await fetch("api/api.php", {
       method: "POST",
       body: new URLSearchParams({ action: "list" }),
     });
     const todos = await res.json();
-    updateHeaderCheckbox(todos);
-    renderTodos(todos);
+    updateHeaderCheckbox(todos); // ヘッダーチェックボックスの状態更新
+    updateDoneCount(); // 一括削除ボタンの完了済み件数の更新
+    renderTodos(todos); // TODOリストの描画
   } catch (err) {
     console.error("取得エラー:", err);
     alert("Todoの取得に失敗しました");
   }
 }
 
+// TODOリストの描画
 function renderTodos(todos) {
   const tbody = document.getElementById("todoBody");
   tbody.innerHTML = "";
@@ -40,7 +43,7 @@ function renderTodos(todos) {
       textTd.textContent = todo.text;
       textTd.addEventListener("click", () => {
         isEditingId = todo.id;
-        fetchTodos();
+        fetchTodos(); // TODOリストの取得と表示
       });
     } else {
       const textbox = document.createElement("input");
@@ -83,39 +86,39 @@ function renderTodos(todos) {
 }
 
 async function addTodo(text) {
-  await fetch("api.php", {
+  await fetch("api/api.php", {
     method: "POST",
     body: new URLSearchParams({ action: "add", text }),
   });
   isEditingId = 0;
-  fetchTodos();
+  fetchTodos(); // TODOリストの取得と表示
 }
 
 async function deleteTodo(id) {
-  await fetch("api.php", {
+  await fetch("api/api.php", {
     method: "POST",
     body: new URLSearchParams({ action: "delete", id }),
   });
   isEditingId = 0;
-  fetchTodos();
+  fetchTodos(); // TODOリストの取得と表示
 }
 
 async function toggleTodo(id) {
-  await fetch("api.php", {
+  await fetch("api/api.php", {
     method: "POST",
     body: new URLSearchParams({ action: "toggle", id }),
   });
   isEditingId = 0;
-  fetchTodos();
+  fetchTodos(); // TODOリストの取得と表示
 }
 
 async function updateTodo(id, text) {
-  await fetch("api.php", {
+  await fetch("api/api.php", {
     method: "POST",
     body: new URLSearchParams({ action: "update", id, text }),
   });
   isEditingId = 0;
-  fetchTodos();
+  fetchTodos(); // TODOリストの取得と表示
 }
 
 document.getElementById("addForm").addEventListener("submit", (e) => {
@@ -126,14 +129,19 @@ document.getElementById("addForm").addEventListener("submit", (e) => {
 });
 
 // ヘッダーチェックボックスで全件完了/未完了切替
-document.getElementById("headerCheckbox").addEventListener("change", async (e) => {
-  const checked = e.target.checked;
-  await fetch("api.php", {
-    method: "POST",
-    body: new URLSearchParams({ action: "toggle_all", isdone: checked ? 1 : 0 })
+document
+  .getElementById("headerCheckbox")
+  .addEventListener("change", async (e) => {
+    const checked = e.target.checked;
+    await fetch("api/api.php", {
+      method: "POST",
+      body: new URLSearchParams({
+        action: "toggle_all",
+        isdone: checked ? 1 : 0,
+      }),
+    });
+    fetchTodos(); // TODOリストの取得と表示
   });
-  fetchTodos();
-});
 // ヘッダーチェックボックスの状態更新
 function updateHeaderCheckbox(todos) {
   const headerCheckbox = document.getElementById("headerCheckbox");
@@ -141,7 +149,16 @@ function updateHeaderCheckbox(todos) {
 }
 // 全件完了しているか判定
 function areAllTodosDone(todos) {
-  return todos.every(todo => todo.isdone === 1);
+  return todos.every((todo) => todo.isdone === 1);
 }
 
-fetchTodos();
+// 一括削除ボタンの完了済み件数の更新
+function updateDoneCount() {
+  const doneItems = document.querySelectorAll(".todo-item.done"); // .done は完了済みのクラス
+  const count = doneItems.length;
+  document.getElementById("done-count").textContent = count;
+  document.getElementById("bulk-delete-btn").style.display =
+    count > 0 ? "inline-block" : "none";
+}
+
+fetchTodos(); // TODOリストの取得と表示

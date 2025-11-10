@@ -1,12 +1,12 @@
-<!-- Create_sqlite_todos_db.php -->
+<!-- scripts/Create_sqlite_todos_db.php -->
 <!-- 
  todos.jsonよりtodos.dbを作成するツールです。 
  一回のみ実行してください
  -->
 
 <?php
-$db_path = 'todos.db';
-$file_path = 'todos.json';
+$db_path = '../data/todos.db';
+$file_path = '../data/todos.json';
 
 // 初回のみ、DB作成・テーブル作成
 if (file_exists($db_path)) {
@@ -19,7 +19,7 @@ if (file_exists($db_path)) {
 }
 
 // DB接続/作成
-$db = new PDO('sqlite:todos.db');
+$db = new PDO('sqlite:' . $db_path);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // テーブル作成

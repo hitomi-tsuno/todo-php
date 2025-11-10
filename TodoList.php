@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <title>Todoリスト</title>
 </head>
 
@@ -12,6 +12,10 @@
     <form id="addForm">
         <input type="search" name="text" placeholder="新しいTODOを入力" required>
         <button type="submit">追加</button>
+        <button id="bulk-delete-btn" style="display: none;">
+            一括削除 対象：<span id="done-count">0</span>件
+        </button>
+
     </form>
 
     <table>
@@ -26,7 +30,7 @@
         <tbody id="todoBody"></tbody>
     </table>
 
-    <script src="TodoList.js"></script>
+    <script src="js/TodoList.js"></script>
 </body>
 
 </html>
