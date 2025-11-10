@@ -20,7 +20,13 @@ switch ($action) {
     echo json_encode(['status' => 'ok']);
     break;
 
-  case 'toggle':
+    case 'delete_done':
+    $stmt = $db->prepare("DELETE FROM todos WHERE isdone = 1");
+    $stmt->execute();
+    echo json_encode(['status' => 'ok']);
+    break;
+
+    case 'toggle':
     $stmt = $db->prepare("UPDATE todos SET isdone = NOT isdone WHERE id = ?");
     $stmt->execute([$_POST['id']]);
     echo json_encode(['status' => 'ok']);

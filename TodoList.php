@@ -9,14 +9,21 @@
 
 <body>
     <h1>Todoリスト</h1>
-    <form id="addForm">
-        <input type="search" name="text" placeholder="新しいTODOを入力" required>
-        <button type="submit">追加</button>
-        <button id="bulk-delete-btn" style="display: none;">
+
+    <div class="button-row">
+
+        <form id="addForm">
+            <!-- 📝 追加テキスト -->
+            <input type="search" name="text" placeholder="新しいTODOを入力" required>
+            <!-- ＋追加ボタン -->
+            <button type="submit">追加</button>
+        </form>
+
+        <!-- ❌ 一括削除ボタン -->
+        <button id="bulk-delete-btn">
             一括削除 対象：<span id="done-count">0</span>件
         </button>
-
-    </form>
+    </div>
 
     <table>
         <thead>

@@ -22,6 +22,17 @@ button {
   border: none;
   border-radius: 4px;
 }
+.button-row {
+  display: flex;
+  gap: 1rem; /* ボタン間の余白 */
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+#bulk-delete-btn {
+  height: 100%; /* 高さを揃える */
+}
+
 button:hover {
   background: #0056b3;
 }

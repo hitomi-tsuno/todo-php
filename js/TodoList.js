@@ -11,7 +11,7 @@ async function fetchTodos() {
     });
     const todos = await res.json();
     updateHeaderCheckbox(todos); // ヘッダーチェックボックスの状態更新
-    updateDoneCount(); // 一括削除ボタンの完了済み件数の更新
+    updateDoneCount(todos); // 一括削除ボタンの完了済み件数の更新
     renderTodos(todos); // TODOリストの描画
   } catch (err) {
     console.error("取得エラー:", err);
@@ -26,6 +26,8 @@ function renderTodos(todos) {
 
   todos.forEach((todo) => {
     const row = document.createElement("tr");
+    row.className = "todo" + (todo.isdone ? " done" : "");
+    row.dataset.id = todo.id;
 
     // ✅ 完了チェックボックス
     const checkboxTd = document.createElement("td");
@@ -153,12 +155,30 @@ function areAllTodosDone(todos) {
 }
 
 // 一括削除ボタンの完了済み件数の更新
-function updateDoneCount() {
-  const doneItems = document.querySelectorAll(".todo-item.done"); // .done は完了済みのクラス
-  const count = doneItems.length;
+function updateDoneCount(todos) {
+  const count = todos.filter((todo) => todo.isdone === 1).length;
   document.getElementById("done-count").textContent = count;
   document.getElementById("bulk-delete-btn").style.display =
     count > 0 ? "inline-block" : "none";
 }
+
+// 一括削除ボタンクリック時の処理
+document.getElementById("bulk-delete-btn").addEventListener("click", async() => {
+  const confirmed = confirm("完了済みのタスクをすべて削除しますか？");
+  if (!confirmed) return;
+
+  // 完了済みのIDを収集
+  const doneIds = Array.from(document.querySelectorAll(".todo.isdone")).map(
+    (el) => el.dataset.id
+  );
+
+  // サーバーに送信
+  await fetch("api/api.php", {
+    method: "POST",
+    body: new URLSearchParams({ action: "delete_done" }),
+  });
+  isEditingId = 0;
+  fetchTodos(); // TODOリストの取得と表示
+});
 
 fetchTodos(); // TODOリストの取得と表示
