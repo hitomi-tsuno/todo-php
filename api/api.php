@@ -20,13 +20,13 @@ switch ($action) {
     echo json_encode(['status' => 'ok']);
     break;
 
-    case 'delete_done':
+  case 'delete_done':
     $stmt = $db->prepare("DELETE FROM todos WHERE isdone = 1");
     $stmt->execute();
     echo json_encode(['status' => 'ok']);
     break;
 
-    case 'toggle':
+  case 'toggle':
     $stmt = $db->prepare("UPDATE todos SET isdone = NOT isdone WHERE id = ?");
     $stmt->execute([$_POST['id']]);
     echo json_encode(['status' => 'ok']);
@@ -45,7 +45,29 @@ switch ($action) {
     break;
 
   case 'list':
-    $todos = $db->query("SELECT * FROM todos ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
+    $filterIsDone = $_POST['filterIsDone'] ?? null;
+    $filterText = $_POST['filterText'] ?? '';
+
+    $sql = "SELECT * FROM todos WHERE 1";
+    $params = [];
+
+    if ($filterIsDone === "0") {
+      $sql .= " AND isdone = 1";
+    } elseif ($filterIsDone === "1") {
+      $sql .= " AND isdone = 0";
+    }
+
+    if ($filterText !== '') {
+      $sql .= " AND text LIKE ?";
+      $params[] = '%' . $filterText . '%';
+    }
+
+    $sql .= " ORDER BY id DESC";
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     echo json_encode($todos);
     break;
 }

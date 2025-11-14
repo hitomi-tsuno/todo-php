@@ -24,9 +24,22 @@ button {
 }
 .button-row {
   display: flex;
+  flex-direction: column;
   gap: 1rem; /* ボタン間の余白 */
-  align-items: center;
+  /* align-items: center; */
   margin-bottom: 1rem;
+}
+
+/*  */
+.filter-area {
+  margin-bottom: 4px;
+}
+
+/*  */
+.input-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 #bulk-delete-btn {

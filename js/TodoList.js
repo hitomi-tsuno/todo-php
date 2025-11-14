@@ -1,13 +1,16 @@
 // js/TodoList.js
 
+// 編集中のTODOのIDを保持
 let isEditingId = 0;
+let filterIsDone = null; // null: 全件, 0: 完了済み, 1: 未完了
+let filterText = ""; // テキストフィルター用
 
 // TODOリストの取得と表示
 async function fetchTodos() {
   try {
     const res = await fetch("api/api.php", {
       method: "POST",
-      body: new URLSearchParams({ action: "list" }),
+      body: new URLSearchParams({ action: "list", filterIsDone, filterText }),
     });
     const todos = await res.json();
     updateHeaderCheckbox(todos); // ヘッダーチェックボックスの状態更新
@@ -92,7 +95,7 @@ async function addTodo(text) {
     method: "POST",
     body: new URLSearchParams({ action: "add", text }),
   });
-  isEditingId = 0;
+  isEditingId = 0; // 編集状態をリセット
   fetchTodos(); // TODOリストの取得と表示
 }
 
@@ -101,7 +104,7 @@ async function deleteTodo(id) {
     method: "POST",
     body: new URLSearchParams({ action: "delete", id }),
   });
-  isEditingId = 0;
+  isEditingId = 0; // 編集状態をリセット
   fetchTodos(); // TODOリストの取得と表示
 }
 
@@ -110,7 +113,7 @@ async function toggleTodo(id) {
     method: "POST",
     body: new URLSearchParams({ action: "toggle", id }),
   });
-  isEditingId = 0;
+  isEditingId = 0; // 編集状態をリセット
   fetchTodos(); // TODOリストの取得と表示
 }
 
@@ -119,7 +122,7 @@ async function updateTodo(id, text) {
     method: "POST",
     body: new URLSearchParams({ action: "update", id, text }),
   });
-  isEditingId = 0;
+  isEditingId = 0; // 編集状態をリセット
   fetchTodos(); // TODOリストの取得と表示
 }
 
@@ -163,22 +166,42 @@ function updateDoneCount(todos) {
 }
 
 // 一括削除ボタンクリック時の処理
-document.getElementById("bulk-delete-btn").addEventListener("click", async() => {
-  const confirmed = confirm("完了済みのタスクをすべて削除しますか？");
-  if (!confirmed) return;
+document
+  .getElementById("bulk-delete-btn")
+  .addEventListener("click", async () => {
+    const confirmed = confirm("完了済みのタスクをすべて削除しますか？");
+    if (!confirmed) return;
 
-  // 完了済みのIDを収集
-  const doneIds = Array.from(document.querySelectorAll(".todo.isdone")).map(
-    (el) => el.dataset.id
-  );
+    // 完了済みのIDを収集
+    const doneIds = Array.from(document.querySelectorAll(".todo.isdone")).map(
+      (el) => el.dataset.id
+    );
 
-  // サーバーに送信
-  await fetch("api/api.php", {
-    method: "POST",
-    body: new URLSearchParams({ action: "delete_done" }),
+    // サーバーに送信
+    await fetch("api/api.php", {
+      method: "POST",
+      body: new URLSearchParams({ action: "delete_done" }),
+    });
+    isEditingId = 0; // 編集状態をリセット
+    fetchTodos(); // TODOリストの取得と表示
   });
-  isEditingId = 0;
+
+// フィルターセレクト変更時の処理
+document.getElementById("filterSelect").addEventListener("change", (e) => {
+  FilterTodos_isdone(e.target.value);
+});
+// フィルター適用
+function FilterTodos_isdone(isdone) {
+  filterIsDone = isdone;
+  isEditingId = 0; // 編集状態をリセット
   fetchTodos(); // TODOリストの取得と表示
+}
+
+// テキストフィルター入力時の処理
+document.getElementById("textFilter").addEventListener("input", (e) => {
+  filterText = e.target.value;
+  isEditingId = 0;
+  fetchTodos();
 });
 
 fetchTodos(); // TODOリストの取得と表示
