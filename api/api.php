@@ -51,6 +51,7 @@ switch ($action) {
     $sql = "SELECT * FROM todos WHERE 1";
     $params = [];
 
+    // フィルター処理
     if ($filterIsDone === "0") {
       $sql .= " AND isdone = 1";
     } elseif ($filterIsDone === "1") {
@@ -62,7 +63,18 @@ switch ($action) {
       $params[] = '%' . $filterText . '%';
     }
 
-    $sql .= " ORDER BY id DESC";
+    // ソート処理
+    $sortKey = $_POST['sortKey'] ?? 'id';
+    $sortOrder = $_POST['sortOrder'] ?? 'desc';
+
+    // 安全なカラム名と順序だけ許可
+    $allowedKeys = ['id', 'text', 'isdone'];
+    $allowedOrders = ['asc', 'desc'];
+
+    if (!in_array($sortKey, $allowedKeys)) $sortKey = 'id';
+    if (!in_array($sortOrder, $allowedOrders)) $sortOrder = 'desc';
+
+    $sql .= " ORDER BY $sortKey $sortOrder";
 
     $stmt = $db->prepare($sql);
     $stmt->execute($params);

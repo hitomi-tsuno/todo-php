@@ -48,9 +48,9 @@
     <table>
         <thead>
             <tr>
-                <th>完了<input type="checkbox" id="headerCheckbox"></th>
-                <th>内容</th>
-                <th>登録日時</th>
+                <th id="sort-isdone" class="sortable">完了<input type="checkbox" id="headerCheckbox"></th>
+                <th id="sort-text" class="sortable">内容</th>
+                <th id="sort-id" class="sortable">登録日時</th>
                 <th>操作</th>
             </tr>
         </thead>

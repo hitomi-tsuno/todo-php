@@ -4,17 +4,26 @@
 let isEditingId = 0;
 let filterIsDone = null; // null: 全件, 0: 完了済み, 1: 未完了
 let filterText = ""; // テキストフィルター用
+let sortKey = "id"; // ソートキー（id: 登録日時）
+let sortOrder = "asc"; // ソート順（asc: 昇順, desc: 降順）
 
 // TODOリストの取得と表示
 async function fetchTodos() {
   try {
     const res = await fetch("api/api.php", {
       method: "POST",
-      body: new URLSearchParams({ action: "list", filterIsDone, filterText }),
+      body: new URLSearchParams({
+        action: "list",
+        filterIsDone,
+        filterText,
+        sortKey,
+        sortOrder,
+      }),
     });
     const todos = await res.json();
     updateHeaderCheckbox(todos); // ヘッダーチェックボックスの状態更新
     updateDoneCount(todos); // 一括削除ボタンの完了済み件数の更新
+    updateSortIcons(); // ソートアイコンの更新
     renderTodos(todos); // TODOリストの描画
   } catch (err) {
     console.error("取得エラー:", err);
@@ -203,5 +212,40 @@ document.getElementById("textFilter").addEventListener("input", (e) => {
   isEditingId = 0;
   fetchTodos();
 });
+
+// ソートヘッダークリック時の処理
+document
+  .getElementById("sort-isdone")
+  .addEventListener("click", () => toggleSort("isdone"));
+document
+  .getElementById("sort-text")
+  .addEventListener("click", () => toggleSort("text"));
+document
+  .getElementById("sort-id")
+  .addEventListener("click", () => toggleSort("id"));
+// ソート切替
+function toggleSort(key) {
+  if (sortKey === key) {
+    sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  } else {
+    sortKey = key;
+    sortOrder = "asc";
+  }
+  updateSortIcons(); // ソートアイコンの更新
+  fetchTodos();
+}
+
+// ソートアイコンの更新
+function updateSortIcons() {
+  const headers = document.querySelectorAll("th.sortable");
+  headers.forEach((th) => {
+    th.classList.remove("asc", "desc");
+  });
+
+  const activeTh = document.getElementById(`sort-${sortKey}`);
+  if (activeTh) {
+    activeTh.classList.add(sortOrder);
+  }
+}
 
 fetchTodos(); // TODOリストの取得と表示

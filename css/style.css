@@ -49,3 +49,21 @@ button {
 button:hover {
   background: #0056b3;
 }
+
+/* ソート可能な列のスタイル */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+/*  */
+th.sortable::after {
+  content: " ⇅";
+  font-size: 0.8em;
+  color: #888;
+}
+th.sortable.asc::after {
+  content: " ▲";
+}
+th.sortable.desc::after {
+  content: " ▼";
+}
