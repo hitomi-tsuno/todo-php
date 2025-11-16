@@ -41,6 +41,11 @@ button {
   align-items: center;
   gap: 8px;
 }
+/* input[type="search"] {
+  margin: 4px 0;
+  padding: 4px 8px;
+  width: 50%;
+} */
 
 #bulk-delete-btn {
   height: 100%; /* 高さを揃える */
@@ -55,7 +60,6 @@ th.sortable {
   cursor: pointer;
   user-select: none;
 }
-/*  */
 th.sortable::after {
   content: " ⇅";
   font-size: 0.8em;
@@ -66,4 +70,39 @@ th.sortable.asc::after {
 }
 th.sortable.desc::after {
   content: " ▼";
+}
+
+.StyledText {
+  position: relative;
+  /* display: inline-block; */
+}
+.StyledText:hover::after {
+  content: "✏️";
+  position: absolute;
+  right: -20px;
+  top: 0;
+  font-size: 0.8rem;
+}
+
+/* CSSでタグの見た目と色分けを設定 */
+.tag {
+  display: inline-block;
+  padding: 2px 6px;
+  margin: 2px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: white;
+}
+/* 色分け例（タグ名に応じて） */
+.tag[data-tag="買い物"] {
+  background-color: #28a745;
+}
+.tag[data-tag="家事"] {
+  background-color: #17a2b8;
+}
+.tag[data-tag="仕事"] {
+  background-color: #ffc107;
+}
+.tag[data-tag="勉強"] {
+  background-color: #6f42c1;
 }

@@ -53,7 +53,8 @@ function renderTodos(todos) {
     // 📝 TODOテキスト
     const textTd = document.createElement("td");
     if (isEditingId !== todo.id) {
-      textTd.className = todo.isdone ? "done" : "";
+      textTd.classList.add("StyledText");
+      textTd.className.add = todo.isdone ? "done" : "";
       textTd.textContent = todo.text;
       textTd.addEventListener("click", () => {
         isEditingId = todo.id;
@@ -61,6 +62,8 @@ function renderTodos(todos) {
       });
     } else {
       const textbox = document.createElement("input");
+      const tagsbox = document.createElement("input");
+      // ***** 📝 TODO *****
       textbox.type = "search";
       textbox.value = todo.text;
       const originalText = todo.text; // 元の値を保持
@@ -71,9 +74,25 @@ function renderTodos(todos) {
         }
       });
       textbox.addEventListener("change", () =>
-        updateTodo(todo.id, textbox.value)
+        updateTodo(todo.id, textbox.value, tagsbox.value)
       );
       textTd.appendChild(textbox);
+
+      // ***** 🏷️ タグ *****
+      tagsbox.type = "search";
+      tagsbox.value = todo.tags;
+      const originaltags = todo.tags; // 元の値を保持
+      // // ×ボタンクリック時、元の値に戻す
+      // tagsbox.addEventListener("input", () => {
+      //   if (tagsbox.value === "") {
+      //     tagsbox.value = originaltags; // 空になったら元に戻す
+      //   }
+      // });
+      tagsbox.addEventListener("change", () =>
+        updateTodo(todo.id, textbox.value, tagsbox.value)
+      );
+      textTd.appendChild(tagsbox);
+
       // 描画完了後にフォーカスを当てる
       setTimeout(() => {
         textbox.focus(); // ここでフォーカスを当てる
@@ -82,9 +101,32 @@ function renderTodos(todos) {
     }
     row.appendChild(textTd);
 
+    // 🏷️ タグ
+    const tagTd = document.createElement("td");
+    tagTd.textContent = todo.tags;
+    tagTd.addEventListener("click", () => {
+      isEditingId = 0;
+      fetchTodos(); // TODOリストの取得と表示
+    });
+    row.appendChild(tagTd);
+    // タグの色分け表示
+    const tagList = (todo.tags || "").split(",").map((tag) => tag.trim());
+    tagList.forEach((tag) => {
+      const tagSpan = document.createElement("span");
+      tagSpan.textContent = tag;
+      tagSpan.className = "tag";
+      tagSpan.dataset.tag = tag; // 色分け用
+      tagTd.appendChild(tagSpan);
+    });
+    row.appendChild(tagTd);
+
     // 📅 登録日時
     const dateTd = document.createElement("td");
     dateTd.textContent = new Date(todo.id).toLocaleString();
+    dateTd.addEventListener("click", () => {
+      isEditingId = 0;
+      fetchTodos(); // TODOリストの取得と表示
+    });
     row.appendChild(dateTd);
 
     // ❌ 削除ボタン
@@ -99,10 +141,10 @@ function renderTodos(todos) {
   });
 }
 
-async function addTodo(text) {
+async function addTodo(text, tags) {
   await fetch("api/api.php", {
     method: "POST",
-    body: new URLSearchParams({ action: "add", text }),
+    body: new URLSearchParams({ action: "add", text, tags }),
   });
   isEditingId = 0; // 編集状態をリセット
   fetchTodos(); // TODOリストの取得と表示
@@ -126,10 +168,10 @@ async function toggleTodo(id) {
   fetchTodos(); // TODOリストの取得と表示
 }
 
-async function updateTodo(id, text) {
+async function updateTodo(id, text, tags) {
   await fetch("api/api.php", {
     method: "POST",
-    body: new URLSearchParams({ action: "update", id, text }),
+    body: new URLSearchParams({ action: "update", id, text, tags }),
   });
   isEditingId = 0; // 編集状態をリセット
   fetchTodos(); // TODOリストの取得と表示
@@ -138,7 +180,8 @@ async function updateTodo(id, text) {
 document.getElementById("addForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const text = e.target.text.value;
-  addTodo(text);
+  const tags = e.target.tags.value;
+  addTodo(text, tags);
   e.target.reset();
 });
 
@@ -220,6 +263,9 @@ document
 document
   .getElementById("sort-text")
   .addEventListener("click", () => toggleSort("text"));
+document
+  .getElementById("sort-tags")
+  .addEventListener("click", () => toggleSort("tags"));
 document
   .getElementById("sort-id")
   .addEventListener("click", () => toggleSort("id"));

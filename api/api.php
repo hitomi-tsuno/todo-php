@@ -8,9 +8,9 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $action = $_POST['action'] ?? '';
 switch ($action) {
   case 'add':
-    $stmt = $db->prepare("INSERT INTO todos (id, text, isdone) VALUES (?, ?, 0)");
+    $stmt = $db->prepare("INSERT INTO todos (id, text, isdone, tags) VALUES (?, ?, 0, ?)");
     $id = (int)round(microtime(true) * 1000);
-    $stmt->execute([$id, $_POST['text']]);
+    $stmt->execute([$id, $_POST['text'], $_POST['tags']]);
     echo json_encode(['status' => 'ok', 'id' => $id]);
     break;
 
@@ -39,9 +39,11 @@ switch ($action) {
     break;
 
   case 'update':
-    $stmt = $db->prepare("UPDATE todos SET text = ? WHERE id = ?");
-    $stmt->execute([$_POST['text'], $_POST['id']]);
-    echo json_encode(['status' => 'ok']);
+    $id = $_POST['id'] ?? '';
+    $text = $_POST['text'] ?? '';
+    $tags = $_POST['tags'] ?? '';
+    $stmt = $db->prepare("UPDATE todos SET text = ?, tags = ? WHERE id = ?");
+    $stmt->execute([$text, $tags, $id]);
     break;
 
   case 'list':
@@ -68,7 +70,7 @@ switch ($action) {
     $sortOrder = $_POST['sortOrder'] ?? 'desc';
 
     // 安全なカラム名と順序だけ許可
-    $allowedKeys = ['id', 'text', 'isdone'];
+    $allowedKeys = ['id', 'text', 'isdone' . 'tags'];
     $allowedOrders = ['asc', 'desc'];
 
     if (!in_array($sortKey, $allowedKeys)) $sortKey = 'id';

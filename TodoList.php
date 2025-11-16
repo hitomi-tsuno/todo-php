@@ -34,6 +34,8 @@
             <form id="addForm">
                 <!-- 📝 追加テキスト -->
                 <input type="search" name="text" placeholder="新しいTODOを入力" required>
+                <!-- 🏷️ タグ -->
+                <input type="search" name="tags" placeholder="タグ（例: 買い物, 家事）">
                 <!-- ＋追加ボタン -->
                 <button type="submit">追加</button>
             </form>
@@ -50,6 +52,7 @@
             <tr>
                 <th id="sort-isdone" class="sortable">完了<input type="checkbox" id="headerCheckbox"></th>
                 <th id="sort-text" class="sortable">内容</th>
+                <th id="sort-tags" class="sortable">タグ</th>
                 <th id="sort-id" class="sortable">登録日時</th>
                 <th>操作</th>
             </tr>
