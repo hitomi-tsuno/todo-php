@@ -4,6 +4,7 @@
 let isEditingId = 0;
 let filterIsDone = null; // null: 全件, 0: 完了済み, 1: 未完了
 let filterText = ""; // テキストフィルター用
+let filterTag = null; // タグフィルター用
 let sortKey = "id"; // ソートキー（id: 登録日時）
 let sortOrder = "asc"; // ソート順（asc: 昇順, desc: 降順）
 
@@ -16,6 +17,7 @@ async function fetchTodos() {
         action: "list",
         filterIsDone,
         filterText,
+        filterTag,
         sortKey,
         sortOrder,
       }),
@@ -255,6 +257,17 @@ document.getElementById("textFilter").addEventListener("input", (e) => {
   isEditingId = 0;
   fetchTodos();
 });
+
+// フィルターセレクト変更時の処理
+document.getElementById("tagsSelect").addEventListener("change", (e) => {
+  FilterTodos_tags(e.target.value);
+});
+// フィルター適用
+function FilterTodos_tags(tags) {
+  filterTag = tags;
+  isEditingId = 0; // 編集状態をリセット
+  fetchTodos(); // TODOリストの取得と表示
+}
 
 // ソートヘッダークリック時の処理
 document

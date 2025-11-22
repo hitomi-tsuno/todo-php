@@ -21,10 +21,15 @@
                 <option value="0">完了のみ</option>
                 <option value="1">未完了のみ</option>
             </select>
+            <!-- キーワードで絞り込み -->
             <label>
                 🔍
                 <input type="search" id="textFilter" placeholder="キーワードで絞り込み">
             </label>
+            タグ：
+            <!-- フィルター　🏷️ タグ -->
+            <select id="tagsSelect">
+            </select>
             <br>
 
         </div>
@@ -60,6 +65,7 @@
         <tbody id="todoBody"></tbody>
     </table>
     <script src="js/TodoList.js"></script>
+    <script src="js/TagsList.js"></script>
 
 </body>
 

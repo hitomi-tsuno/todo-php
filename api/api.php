@@ -46,9 +46,19 @@ switch ($action) {
     $stmt->execute([$text, $tags, $id]);
     break;
 
+  case 'list_tags':
+    $sql = "SELECT DISTINCT tags FROM todos WHERE tags <> '' ORDER BY tags ASC";
+    $params = [];
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode($todos);
+    break;
+
   case 'list':
     $filterIsDone = $_POST['filterIsDone'] ?? null;
     $filterText = $_POST['filterText'] ?? '';
+    $filterTag = $_POST['filterTag'] ?? "null";
 
     $sql = "SELECT * FROM todos WHERE 1";
     $params = [];
@@ -65,12 +75,17 @@ switch ($action) {
       $params[] = '%' . $filterText . '%';
     }
 
+    if ($filterTag !== "null") {
+      $sql .= " AND tags LIKE ?";
+      $params[] = '%' . $filterTag . '%';
+    }
+
     // ソート処理
     $sortKey = $_POST['sortKey'] ?? 'id';
     $sortOrder = $_POST['sortOrder'] ?? 'desc';
 
     // 安全なカラム名と順序だけ許可
-    $allowedKeys = ['id', 'text', 'isdone' . 'tags'];
+    $allowedKeys = ['id', 'text', 'isdone', 'tags'];
     $allowedOrders = ['asc', 'desc'];
 
     if (!in_array($sortKey, $allowedKeys)) $sortKey = 'id';
