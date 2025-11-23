@@ -4,24 +4,26 @@
 let isEditingId = 0;
 let filterIsDone = null; // null: 全件, 0: 完了済み, 1: 未完了
 let filterText = ""; // テキストフィルター用
-let filterTag = null; // タグフィルター用
 let sortKey = "id"; // ソートキー（id: 登録日時）
 let sortOrder = "asc"; // ソート順（asc: 昇順, desc: 降順）
 
 // TODOリストの取得と表示
 async function fetchTodos() {
   try {
+    const selectedTags = getSelectedTags();
+    const params = new URLSearchParams({
+      action: "list",
+      filterIsDone,
+      filterText,
+      sortKey,
+      sortOrder,
+    });
+    selectedTags.forEach((tag) => params.append("filterTags[]", tag));
     const res = await fetch("api/api.php", {
       method: "POST",
-      body: new URLSearchParams({
-        action: "list",
-        filterIsDone,
-        filterText,
-        filterTag,
-        sortKey,
-        sortOrder,
-      }),
+      body: params,
     });
+
     const todos = await res.json();
     updateHeaderCheckbox(todos); // ヘッダーチェックボックスの状態更新
     updateDoneCount(todos); // 一括削除ボタンの完了済み件数の更新
@@ -258,15 +260,20 @@ document.getElementById("textFilter").addEventListener("input", (e) => {
   fetchTodos();
 });
 
-// フィルターセレクト変更時の処理
-document.getElementById("tagsSelect").addEventListener("change", (e) => {
+// フィルター タグ変更時の処理
+document.getElementById("tagsCheckboxList").addEventListener("change", (e) => {
   FilterTodos_tags(e.target.value);
 });
 // フィルター適用
 function FilterTodos_tags(tags) {
-  filterTag = tags;
+  // filterTag = tags;
   isEditingId = 0; // 編集状態をリセット
   fetchTodos(); // TODOリストの取得と表示
+}
+function getSelectedTags() {
+  return Array.from(
+    document.querySelectorAll("#tagsCheckboxList input:checked")
+  ).map((cb) => cb.value);
 }
 
 // ソートヘッダークリック時の処理

@@ -28,8 +28,7 @@
             </label>
             タグ：
             <!-- フィルター　🏷️ タグ -->
-            <select id="tagsSelect">
-            </select>
+            <div id="tagsCheckboxList" class='StyledTagsDiv'></div>
             <br>
 
         </div>

@@ -106,3 +106,10 @@ th.sortable.desc::after {
 .tag[data-tag="勉強"] {
   background-color: #6f42c1;
 }
+/* キー部のタグのdiv 改行しないようにしました */
+.StyledTagsDiv {
+  position: relative;
+  display: inline-block;
+  border: 1px solid #767676;
+  padding: 10px;
+}

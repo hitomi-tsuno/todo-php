@@ -19,18 +19,17 @@ async function fetchTags() {
 
 // 🏷️ タグの描画
 function renderTags(tags) {
-  const select = document.getElementById("tagsSelect");
-  select.innerHTML = "";
+  const container = document.getElementById("tagsCheckboxList");
+  container.innerHTML = "";
 
-  const tagOption = document.createElement("option");
-  tagOption.value = "null";
-  tagOption.textContent = "全件";
-  select.appendChild(tagOption);
-  tags.forEach((tag) => {
-    const tagOption = document.createElement("option");
-    tagOption.value = tag.tags;
-    tagOption.textContent = tag.tags;
-    select.appendChild(tagOption);
+  tags.forEach(tag => {
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = tag.tags;
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(" " + tag.tags));
+    container.appendChild(label);
   });
 }
 fetchTags(); // Tagsの取得と表示

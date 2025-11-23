@@ -58,7 +58,7 @@ switch ($action) {
   case 'list':
     $filterIsDone = $_POST['filterIsDone'] ?? null;
     $filterText = $_POST['filterText'] ?? '';
-    $filterTag = $_POST['filterTag'] ?? "null";
+    $filterTags = $_POST['filterTags'] ?? [];
 
     $sql = "SELECT * FROM todos WHERE 1";
     $params = [];
@@ -75,9 +75,9 @@ switch ($action) {
       $params[] = '%' . $filterText . '%';
     }
 
-    if ($filterTag !== "null") {
+    foreach ($filterTags as $tag) {
       $sql .= " AND tags LIKE ?";
-      $params[] = '%' . $filterTag . '%';
+      $params[] = '%' . $tag . '%';
     }
 
     // ソート処理
