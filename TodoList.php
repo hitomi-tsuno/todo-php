@@ -29,7 +29,7 @@
             タグ：
             <!-- フィルター　🏷️ タグ -->
             <div id="tagsCheckboxList" class='StyledTagsDiv'></div>
-            <br>
+            <br />
 
         </div>
 

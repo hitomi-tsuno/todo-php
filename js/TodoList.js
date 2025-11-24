@@ -25,6 +25,12 @@ async function fetchTodos() {
     });
 
     const todos = await res.json();
+    if (todos.status === "error") {
+      console.error("APIエラー:", todos.message); // ← Consoleに出る
+      // alert("取得エラー: " + todos.message);      // UIにも出すなら
+      // return;
+    }
+
     updateHeaderCheckbox(todos); // ヘッダーチェックボックスの状態更新
     updateDoneCount(todos); // 一括削除ボタンの完了済み件数の更新
     updateSortIcons(); // ソートアイコンの更新
