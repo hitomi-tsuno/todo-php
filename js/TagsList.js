@@ -12,7 +12,7 @@ async function fetchTags() {
     const tags = await res.json();
     renderTags(tags); // Tagsの描画
   } catch (err) {
-    console.error("取得エラー:", err);
+    console.error("Tags取得エラー:", err);
     alert("Tagsの取得に失敗しました");
   }
 }

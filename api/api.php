@@ -1,5 +1,8 @@
-<!-- api\api.php -->
 <?php
+//<!-- api\api.php -->
+// true = 開発モード, false = 本番モード
+define("DEBUG_MODE", true);
+
 $db_path = '../data/todos.db';
 
 // DB接続/作成
@@ -10,32 +13,37 @@ $action = $_POST['action'] ?? '';
 try {
   switch ($action) {
     case 'add':
-      $stmt = $db->prepare("INSERT INTO todos (id, text, isdone, tags) VALUES (?, ?, 0, ?)");
+      $sql = "INSERT INTO todos (id, text, isdone, tags) VALUES (?, ?, 0, ?)";
+      $stmt = $db->prepare($sql);
       $id = (int)round(microtime(true) * 1000);
       $stmt->execute([$id, $_POST['text'], $_POST['tags']]);
       echo json_encode(['status' => 'ok', 'id' => $id]);
       break;
 
     case 'delete':
-      $stmt = $db->prepare("DELETE FROM todos WHERE id = ?");
+      $sql = "DELETE FROM todos WHERE id = ?";
+      $stmt = $db->prepare($sql);
       $stmt->execute([$_POST['id']]);
       echo json_encode(['status' => 'ok']);
       break;
 
     case 'delete_done':
-      $stmt = $db->prepare("DELETE FROM todos WHERE isdone = 1");
+      $sql = "DELETE FROM todos WHERE isdone = 1";
+      $stmt = $db->prepare($sql);
       $stmt->execute();
       echo json_encode(['status' => 'ok']);
       break;
 
     case 'toggle':
-      $stmt = $db->prepare("UPDATE todos SET isdone = NOT isdone WHERE id = ?");
+      $sql = "UPDATE todos SET isdone = NOT isdone WHERE id = ?";
+      $stmt = $db->prepare($sql);
       $stmt->execute([$_POST['id']]);
       echo json_encode(['status' => 'ok']);
       break;
 
     case 'toggle_all':
-      $stmt = $db->prepare("UPDATE todos SET isdone = ?");
+      $sql = "UPDATE todos SET isdone = ?";
+      $stmt = $db->prepare($sql);
       $stmt->execute([$_POST['isdone']]);
       echo json_encode(['status' => 'ok']);
       break;
@@ -44,7 +52,8 @@ try {
       $id = $_POST['id'] ?? '';
       $text = $_POST['text'] ?? '';
       $tags = $_POST['tags'] ?? '';
-      $stmt = $db->prepare("UPDATE todos SET text = ?, tags = ? WHERE id = ?");
+      $sql = "UPDATE todos SET text = ?, tags = ? WHERE id = ?";
+      $stmt = $db->prepare($sql);
       $stmt->execute([$text, $tags, $id]);
       break;
 
@@ -99,7 +108,7 @@ try {
 
       $sql .= " ORDER BY $sortKey $sortOrder";
 
-      $sql .= " bbbbb"; // Try・Catchテスト用
+      // $sql .= " bbbbb"; // Try・Catchテスト用
 
       $stmt = $db->prepare($sql);
       $stmt->execute($params);
@@ -113,4 +122,28 @@ try {
   error_log($e->getMessage());
   http_response_code(500);
   echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+
+  // エラー時にSQLと値をログ出力
+  // [注意]
+  // $sqlに値を設定する
+  logError($e->getMessage(),  ['text' => $text, 'id' => $id, 'tags' => $tags, 'params' => $params]);
+}
+
+function logError($error,  $sql = null, $values = null)
+{
+  $logFile = "C:/work/study/php/my-todo-app/log/error.log";
+
+  if (DEBUG_MODE) {
+    // 開発モード: SQLと値を詳細に出力
+    // <日付>
+    error_log(str_repeat("－", 50) . PHP_EOL, 3, $logFile);
+    error_log(date('Y/m/d H:i:s') . PHP_EOL, 3, $logFile);
+    error_log('エラー内容: ' . $error . PHP_EOL, 3, $logFile);
+    error_log('$sql: ' . $sql . PHP_EOL, 3, $logFile);
+    error_log('$_POST: ' . json_encode($_POST) . PHP_EOL, 3, $logFile);
+    error_log('Values: ' . json_encode($values) . PHP_EOL, 3, $logFile);
+  } else {
+    // 本番モード: 最小限の情報のみ
+    // 未出力
+  }
 }
