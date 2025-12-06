@@ -16,35 +16,41 @@ try {
       $sql = "INSERT INTO todos (id, text, isdone, tags) VALUES (?, ?, 0, ?)";
       $stmt = $db->prepare($sql);
       $id = (int)round(microtime(true) * 1000);
-      $stmt->execute([$id, $_POST['text'], $_POST['tags']]);
+      // $stmt->execute([$id, $_POST['text'], $_POST['tags']]);
+      executeWithLog($stmt, [$id, $_POST['text'], $_POST['tags']]);
       echo json_encode(['status' => 'ok', 'id' => $id]);
       break;
 
     case 'delete':
       $sql = "DELETE FROM todos WHERE id = ?";
       $stmt = $db->prepare($sql);
-      $stmt->execute([$_POST['id']]);
+      // $stmt->execute([$_POST['id']]);
+      executeWithLog($stmt, [$_POST['id']]);
       echo json_encode(['status' => 'ok']);
       break;
 
     case 'delete_done':
       $sql = "DELETE FROM todos WHERE isdone = 1";
       $stmt = $db->prepare($sql);
-      $stmt->execute();
+      // $stmt->execute();
+      executeWithLog($stmt, []);
       echo json_encode(['status' => 'ok']);
       break;
 
     case 'toggle':
       $sql = "UPDATE todos SET isdone = NOT isdone WHERE id = ?";
       $stmt = $db->prepare($sql);
-      $stmt->execute([$_POST['id']]);
+      // $stmt->execute([$_POST['id']]);
+      executeWithLog($stmt, [$_POST['id']]);
       echo json_encode(['status' => 'ok']);
       break;
 
     case 'toggle_all':
       $sql = "UPDATE todos SET isdone = ?";
       $stmt = $db->prepare($sql);
-      $stmt->execute([$_POST['isdone']]);
+      // $stmt->execute([$_POST['isdone']]);
+      executeWithLog($stmt, [$_POST['isdone']]);
+
       echo json_encode(['status' => 'ok']);
       break;
 
@@ -54,15 +60,19 @@ try {
       $tags = $_POST['tags'] ?? '';
       $sql = "UPDATE todos SET text = ?, tags = ? WHERE id = ?";
       $stmt = $db->prepare($sql);
-      $stmt->execute([$text, $tags, $id]);
+      // $stmt->execute([$text, $tags, $id]);
+      executeWithLog($stmt, [$text, $tags, $id]);
+
       break;
 
     case 'list_tags':
       $sql = "SELECT DISTINCT tags FROM todos WHERE tags <> '' ORDER BY tags ASC";
       $params = [];
       $stmt = $db->prepare($sql);
-      $stmt->execute($params);
-      $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      // $stmt->execute($params);
+      // $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      executeWithLog($stmt, $params);
+      $todos = fetchAllWithLog($stmt, PDO::FETCH_ASSOC);
       echo json_encode($todos);
       break;
 
@@ -111,8 +121,10 @@ try {
       // $sql .= " bbbbb"; // Try・Catchテスト用
 
       $stmt = $db->prepare($sql);
-      $stmt->execute($params);
-      $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      // $stmt->execute($params);
+      // $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      executeWithLog($stmt, $params);
+      $todos = fetchAllWithLog($stmt, PDO::FETCH_ASSOC);
 
       echo json_encode($todos);
       break;
@@ -129,6 +141,7 @@ try {
   logError($e->getMessage(),  ['text' => $text, 'id' => $id, 'tags' => $tags, 'params' => $params]);
 }
 
+// エラーログ出力関数
 function logError($error,  $sql = null, $values = null)
 {
   $logFile = "C:/work/study/php/my-todo-app/log/error.log";
@@ -146,4 +159,80 @@ function logError($error,  $sql = null, $values = null)
     // 本番モード: 最小限の情報のみ
     // 未出力
   }
+}
+
+// SQL実行関数（ログ付き）
+function executeWithLog(PDOStatement $stmt, array $params)
+{
+  if (DEBUG_MODE === false) {
+    // 本番モード時はそのまま実行
+    return $stmt->execute($params);
+  }
+
+  $logFile = "C:/work/study/php/my-todo-app/log/sql.log";
+
+  // デバッグモード時はSQLと値をログに出力
+  error_log(str_repeat("－", 50) . PHP_EOL, 3, $logFile);
+  error_log(date('Y/m/d H:i:s') . PHP_EOL, 3, $logFile);
+  error_log('sql: ' . $stmt->queryString . PHP_EOL, 3, $logFile);
+  error_log('$params: ' . json_encode($params, JSON_UNESCAPED_UNICODE) . PHP_EOL, 3, $logFile);
+  if (count($params) > 0) {
+    $sentSql = chageSendSql($stmt->queryString, $params);
+    error_log('sent sql: ' . $sentSql . PHP_EOL, 3, $logFile);
+  }
+
+  // 実際のSQL実行
+  $return = $stmt->execute($params);
+
+  if ($return === false) {
+    error_log('SQL実行エラー：error.logをご確認ください' . PHP_EOL, 3, $logFile);
+    return $return;
+  }
+  // デバッグモード時はSQLと値をログに出力
+  $sql = strtoupper(trim($stmt->queryString)); // 大文字に変換
+
+  if (str_starts_with($sql, "SELECT ")) {
+  }
+  if (str_starts_with($sql, "UPDATE ")) {
+    error_log('UPDATE件数: ' . $stmt->rowCount() . PHP_EOL, 3, $logFile);
+  }
+  if (str_starts_with($sql, "INSERT ")) {
+    error_log('INSERT件数: ' . $stmt->rowCount() . PHP_EOL, 3, $logFile);
+  }
+  return $return;
+}
+
+// SQL実行関数（ログ付き）fetchAll用
+function fetchAllWithLog(PDOStatement $stmt, $mode = PDO::FETCH_DEFAULT)
+{
+  if (DEBUG_MODE === false) {
+    // 本番モード時はそのまま実行
+    $todos = $stmt->fetchAll($mode);
+    return $todos;
+  }
+
+  $logFile = "C:/work/study/php/my-todo-app/log/sql.log";
+
+  // デバッグモード時はSQLと値をログに出力
+  $todos = $stmt->fetchAll($mode);
+  error_log('SELECT件数: ' . count($todos) . PHP_EOL, 3, $logFile);
+  return $todos;
+}
+
+// SQL文をパラメータを含めたSQLに変換する関数
+function chageSendSql(string $string, array $params)
+{
+  $count = 0; // 配列のインデックスとして使用するカウンター
+  $replacements = []; // 置換値の配列
+  $replacements = array_map(function ($value) {
+    return "'" . $value . "'";
+  }, $params);
+
+  // "?"→paramsを順番に置換
+  $result = preg_replace_callback('/\?/', function ($matches) use (&$replacements, &$count) {
+    // 置換値の配列から現在のカウンターに対応する値を取得し、カウンターをインクリメント
+    return isset($replacements[$count]) ? $replacements[$count++] : $matches[0];
+  }, $string);
+
+  return $result;
 }
